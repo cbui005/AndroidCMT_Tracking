@@ -21,6 +21,15 @@ This setup is to support Android Marshmallow 6.0.1 (API 23) and testing is being
 In the app build.gradle, targetSdkVerison.apiLevel is set to 22 because with API 23, you need to request permissions to access and use the camera. Setting target API to 22 allows us to still use the camera without needing to explicitly request camera permission.
 >targetSdkVersion.apiLevel = 22
 
+Android NDK Settings
+> Flags for c++ compiling. Settings are found in app's build.gradle under android.ndk
+```
+cppFlags += "-std=c++11"
+cppFlags += "--debug"
+cppFlags += "-frtti"
+cppFlags += "-fexceptions"
+```
+
 
 ## License
 [GNU License](https://github.com/gentlespoon/rshell/blob/exec/LICENSE)
