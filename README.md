@@ -16,5 +16,10 @@ Android mobile application designed to track user specified objects using OpenCV
 
 This setup is to support Android Marshmallow 6.0.1 (API 23) and testing is being done on Samsung Galaxy S7 edge.
 
+## Configurations
+'''
+In the app build.gradle, targetSdkVerison.apiLevel is set to 22 because with API 23, you need to request permissions to access and use the camera. Setting target API to 22 allows us to still use the camera without needing to explicitly request camera permission.
+>targetSdkVersion.apiLevel = 22
+'''
 ## License
 [GNU License](https://github.com/gentlespoon/rshell/blob/exec/LICENSE)
