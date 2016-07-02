@@ -8,7 +8,7 @@ Android mobile application designed to track user specified objects using OpenCV
 [Android Studio 2.1](https://developer.android.com/studio/index.html)
 
 
-[TLD](http://www.gnebehay.com/tld/)
+[Tracking Learning Detection (TLD)](http://www.gnebehay.com/tld/)
 
 [Consensus-based Tracking and Matching of Keypoints for Object Tracking (CMT)](http://www.gnebehay.com/cmt/)
 
