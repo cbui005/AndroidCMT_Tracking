@@ -30,6 +30,13 @@ cppFlags += "-frtti"
 cppFlags += "-fexceptions"
 ```
 
+## Todo
+```
+Finish implementing the different menu options
+Make sure switching modes works smoothly
+Possible methods for improving frame rate 
+```
+
 
 ## License
 [GNU License](https://github.com/gentlespoon/rshell/blob/exec/LICENSE)
