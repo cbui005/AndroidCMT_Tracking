@@ -1,20 +1,24 @@
 package ph.edu.dlsu.cmt;
 
-import android.app.Activity;
+import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.PorterDuff;
-import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
-import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 
@@ -26,24 +30,22 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfDouble;
+import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
+import org.opencv.objdetect.HOGDescriptor;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import org.opencv.core.MatOfDouble;
-import org.opencv.core.MatOfRect;
-import org.opencv.objdetect.CascadeClassifier;
-import org.opencv.objdetect.HOGDescriptor;
-import android.content.Context;
+import java.util.concurrent.atomic.AtomicReference;
 
-
-public class CameraActivity extends Activity implements
+public class CameraActivity extends AppCompatActivity implements
         CvCameraViewListener2 {
     private static final String TAG = "CameraActivity";
 
@@ -87,7 +89,6 @@ public class CameraActivity extends Activity implements
 
     CascadeClassifier mJavaDetector;
 
-
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -102,9 +103,7 @@ public class CameraActivity extends Activity implements
                     mOpenCvCameraView.enableFpsMeter();
                     mHog=new HOGDescriptor();
                     mHog.setSVMDetector(HOGDescriptor.getDefaultPeopleDetector());
-
                     load_cascade();
-
                 }
                 break;
                 default: {
@@ -116,52 +115,52 @@ public class CameraActivity extends Activity implements
     };
 
     public CameraActivity() {
-        Log.i(TAG, "Instantiated new " + this.getClass());
+        Log.i(TAG, "TAG: Instantiated new " + this.getClass());
 
     }
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG, "called onCreate");
+        Log.i(TAG, "TAG: called onCreate");
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.opencv_surface_view);
-
         mOpenCvCameraView = (OpenCvCameraView) findViewById(R.id.camera_activity_surface_view);
         mOpenCvCameraView.setCvCameraViewListener(this);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         final AtomicReference<Point> trackedBox1stCorner = new AtomicReference<Point>();
-
         final Paint rectPaint = new Paint();
         rectPaint.setColor(Color.rgb(0, 255, 0));
         rectPaint.setStrokeWidth(5);
         rectPaint.setStyle(Style.STROKE);
         _holder = mOpenCvCameraView.getHolder();
-
         mOpenCvCameraView.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 // re-init
-
+                Log.i(TAG, "TAG: found touch");
                 final Point corner = new Point(
                         event.getX() - _canvasImgXOffset, event.getY()
                         - _canvasImgYOffset);
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         trackedBox1stCorner.set(corner);
-                        Log.i("TAG", "1st corner: " + corner);
+                        Log.i("TAG", "TAG: 1st corner: " + corner);
                         break;
                     case MotionEvent.ACTION_UP:
                         _trackedBox = new Rect(trackedBox1stCorner.get(), corner);
                         if (_trackedBox.area() > 100) {
-                            Log.i("TAG", "Tracked box DEFINED: " + _trackedBox);
+                            Log.i("TAG", "TAG: Tracked box DEFINED: " + _trackedBox);
                                  mViewMode = START_TLD;
-
                         } else
                             _trackedBox = null;
                         break;
                     case MotionEvent.ACTION_MOVE:
+                        Log.i(TAG,"TAG: action_move branch");
                         final android.graphics.Rect rect = new android.graphics.Rect(
                                 (int) trackedBox1stCorner.get().x
                                         + _canvasImgXOffset,
@@ -174,18 +173,25 @@ public class CameraActivity extends Activity implements
                         // remove old rectangle
                         canvas.drawRect(rect, rectPaint);
                         _holder.unlockCanvasAndPost(canvas);
-
                         break;
                 }
-
                 return true;
             }
         });
-
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        //super.onCreateOptionsMenu(menu);
+
+        //getMenuInflater().inflate(R.menu.menu_main, menu);
         Log.i(TAG, "called onCreateOptionsMenu");
         mItemPreviewRGBA = menu.add("RGBA");
         mItemPreviewGray = menu.add("GRAY");
@@ -195,7 +201,7 @@ public class CameraActivity extends Activity implements
         mItemPreviewBody = menu.add("Body");
         mItemPreviewSave = menu.add("Save");
         mItemPreviewLoad = menu.add("Load");
-
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         // mOpenCvCameraView.setResolution(640, 480);
 
         return true;
@@ -241,30 +247,22 @@ public class CameraActivity extends Activity implements
     }
 
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
+        Log.i(TAG, "TAG: on camera frame here");
         final int viewMode = mViewMode;
 
         switch (viewMode) {
             case VIEW_MODE_BODY:
             {
-
+                Log.i(TAG,"TAG: case VIEW_MODE_BODY");
                 mRgba = inputFrame.rgba();
                 //Mat Gray =Reduce(inputFrame.gray());
                 Mat Gray = inputFrame.gray();
-
-
                 MatOfRect bodies = new MatOfRect();
-
                 MatOfDouble weights = new MatOfDouble();
-
-                //
                 mHog.detectMultiScale(Gray,bodies,weights);
-
-
-
                 Rect r=null;
                 Rect [] rects = bodies.toArray();
                 double[] wei=weights.toArray();
-
                 double px = (double) mRgba.width() / (double) Gray.width();
                 double py = (double) mRgba.height() / (double) Gray.height();
                 int imax=-1;
@@ -272,13 +270,11 @@ public class CameraActivity extends Activity implements
                 for (int i=0;i<rects.length;i++)
                 {
                     r=rects[i];
-
-
                     r.x = (int) (r.x * px);
                     r.y = (int) (r.y * py);
                     r.width = (int) (r.width * px);
                     r.height = (int) (r.height * py);
-
+                    Log.i(TAG,"TAG: creating rectangle here. check if it is a valid rectangle");
                     if (wei[i]>amax)
                     {
                         amax=wei[i];
@@ -290,6 +286,7 @@ public class CameraActivity extends Activity implements
 
                 if (imax>=0)
                 {
+                    Log.i(TAG,"TAG: rectangle box is valid!");
                     r=rects[imax];
                     double w = mRgba.width();
                     double h = mRgba.height();
@@ -297,11 +294,13 @@ public class CameraActivity extends Activity implements
                     double ppy = (h) / (double) (mOpenCvCameraView.getHeight());
                     r.x = (int) ((r.x / ppx)+0.1*r.width);
                     r.y = (int) ((r.y / ppy)+r.height*0.1);
+                    Log.i(TAG,"TAG: detect 1: x coordinate: " + r.x + " , y coordinate: " + r.y);
                     r.width = (int) (0.8*r.width/ ppx);
                     r.height = (int) (0.8*r.height / ppy);
 
                     _trackedBox=r;
-                    mViewMode=START_CMT;
+                    mViewMode=START_TLD;
+                    Log.i(TAG,"TAG: mViewMode set to START_TLD");
                 }
 //			 else
 //			 {
@@ -331,14 +330,17 @@ public class CameraActivity extends Activity implements
             break;
             case VIEW_MODE_GRAY:
                 // input frame has gray scale format
+                Log.i(TAG,"TAG: case VIEW_MODE_GRAY");
                 Imgproc.cvtColor(inputFrame.gray(), mRgba, Imgproc.COLOR_GRAY2RGBA,
                         4);
                 break;
             case VIEW_MODE_RGBA:
+                Log.i(TAG,"TAG: case VIEW_MODE_RGBA");
                 // input frame has RBGA format
                 mRgba = inputFrame.rgba();
                 break;
             case VIEW_MODE_CANNY:
+                Log.i(TAG,"TAG: case VIEW_MODE_CANNY");
                 // input frame has gray scale format
                 mRgba = inputFrame.rgba();
                 Imgproc.Canny(inputFrame.gray(), mIntermediateMat, 80, 100);
@@ -346,6 +348,7 @@ public class CameraActivity extends Activity implements
                         4);
                 break;
             case START_TLD: {
+                Log.i(TAG,"TAG: case START_TLD");
                 mRgba = inputFrame.rgba();
                 mGray = Reduce(inputFrame.gray());
                 double w = mGray.width();
@@ -356,7 +359,7 @@ public class CameraActivity extends Activity implements
                             (long) w / 2, (long) h / 2);
                 else {
 
-                    Log.i("TAG", "START DEFINED: " + _trackedBox.x / 2 + " "
+                    Log.i("TAG", "TAG: TLD START DEFINED: " + _trackedBox.x / 2 + " "
                             + _trackedBox.y / 2 + " " + _trackedBox.width / 2 + " "
                             + _trackedBox.height / 2);
 
@@ -374,6 +377,7 @@ public class CameraActivity extends Activity implements
             }
             break;
             case START_CMT: {
+                Log.i(TAG,"TAG: case START_CMT");
                 mRgba = inputFrame.rgba();
                 mGray = Reduce(inputFrame.gray());
                 double w = mGray.width();
@@ -387,7 +391,7 @@ public class CameraActivity extends Activity implements
                             (long) w / 2, (long) h / 2);
                 else {
 
-                    Log.i("TAG", "START DEFINED: " + _trackedBox.x / 2 + " "
+                    Log.i("TAG", "TAG: CMT START DEFINED: " + _trackedBox.x / 2 + " "
                             + _trackedBox.y / 2 + " " + _trackedBox.width / 2 + " "
                             + _trackedBox.height / 2);
 
@@ -406,6 +410,7 @@ public class CameraActivity extends Activity implements
             break;
 
             case VIEW_MODE_FEATURES:
+                Log.i(TAG,"TAG: case VIEW_MODE_FEATURES");
                 // input frame has RGBA format
                 mRgba = inputFrame.rgba();
                 mGray = inputFrame.gray();
@@ -433,7 +438,8 @@ public class CameraActivity extends Activity implements
                         r.y = (int) (l[1] * py);
                         r.width = (int) (l[2] * px);
                         r.height = (int) (l[3] * py);
-
+                        Log.i(TAG,"TAG: TLD box defined at x: " + r.x + ", y: " + r.y + " with width = "
+                         + r.width + " and height = " + r.height);
                         Imgproc.rectangle(mRgba, r.tl(), r.br(), new Scalar(0, 0, 255,
                                 0), 5);
                     }
@@ -443,22 +449,17 @@ public class CameraActivity extends Activity implements
 
                     // mRgba=UnReduceColor(mRgba2,mTemp.width(),mTemp.height());
                     // mTemp.release();
-
                 }
-
                 // mRgba2.release();
                 // mGray.release();
                 break;
-
             case VIEW_MODE_CMT:
-                // input frame has RGBA format
             {
+                Log.i(TAG,"TAG: case VIEW_MODE_CMT");
                 mRgba = inputFrame.rgba();
                 mGray = inputFrame.gray();
                 mGray = Reduce(mGray);
-
                 mRgba2 = ReduceColor(mRgba);
-
                 // FindFeatures(mGray.getNativeObjAddr(), mRgba.getNativeObjAddr());
                 if (uno) {
                     int w = mGray.width();
@@ -472,7 +473,6 @@ public class CameraActivity extends Activity implements
                     ProcessCMT(mGray.getNativeObjAddr(), mRgba2.getNativeObjAddr());
                     double px = (double) mRgba.width() / (double) mRgba2.width();
                     double py = (double) mRgba.height() / (double) mRgba2.height();
-
                     int[] l = CMTgetRect();
                     if (l != null) {
                         Point topLeft = new Point(l[0] * px, l[1] * py);
@@ -502,15 +502,12 @@ public class CameraActivity extends Activity implements
             // mRgba2.release();
             // mGray.release();
             break;
-
         }
-
         return mRgba;
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
-        Log.i(TAG, "called onOptionsItemSelected; selected item: " + item);
-
+        Log.i(TAG, "TAG: called onOptionsItemSelected; selected item: " + item);
         if (item == mItemPreviewRGBA) {
             mViewMode = VIEW_MODE_RGBA;
         } else if (item == mItemPreviewCMT) {
@@ -548,7 +545,6 @@ public class CameraActivity extends Activity implements
                 Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(m, bmp);
         Bitmap bmp2 = Bitmap.createScaledBitmap(bmp, WIDTH, HEIGHT, false);
-
         Utils.bitmapToMat(bmp2, dst);
         return dst;
     }
@@ -561,9 +557,7 @@ public class CameraActivity extends Activity implements
                 Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(m, bmp);
         Bitmap bmp2 = Bitmap.createScaledBitmap(bmp, w, h, false);
-
         Utils.bitmapToMat(bmp2, dst);
-
         m.release();
         return dst;
     }
@@ -578,7 +572,6 @@ public class CameraActivity extends Activity implements
             File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
             File mCascadeFile = new File(cascadeDir, "haarcascade_lowerbody.xml");
             FileOutputStream os = new FileOutputStream(mCascadeFile);
-
             byte[] buffer = new byte[4096];
             int bytesRead;
             while ((bytesRead = is.read(buffer)) != -1) {
@@ -586,11 +579,7 @@ public class CameraActivity extends Activity implements
             }
             is.close();
             os.close();
-
             mJavaDetector = new CascadeClassifier(mCascadeFile.getAbsolutePath());
-
-
-
             if (mJavaDetector.empty()) return false;
 
         } catch (IOException e) {

@@ -1,0 +1,19 @@
+instantiated new class
+called oncreate
+repeat until first touch is found
+	on camera frame here
+	case VIEW_MODE_RGBA
+first touch found.
+1st corner found
+repeat until tracked box is found
+	on camera frame here
+	case VIEW_MODE_RGBA
+	found touch
+	action move branch
+tracked box defined
+camera frame here
+case START_TLD
+TLD START DEFINED
+repeat till end
+	camera frame here
+	case VIEW_MODE_FEATURES

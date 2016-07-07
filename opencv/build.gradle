@@ -3,12 +3,12 @@ apply plugin: 'com.android.model.library'
 model {
     android {
         compileSdkVersion = 23
-        buildToolsVersion = "23.0.2"
+        buildToolsVersion = "23.0.3"
 
         defaultConfig.with {
             applicationId = "org.opencv"
             minSdkVersion.apiLevel = 15
-            targetSdkVersion.apiLevel = 23
+            targetSdkVersion.apiLevel = 22
             versionCode = 3000
             versionName = "3.0.0"
         }
